@@ -14,9 +14,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(400, 66)
-        Form.setMinimumSize(QtCore.QSize(400, 66))
-        Form.setMaximumSize(QtCore.QSize(400, 66))
+        Form.resize(400, 100)
+        Form.setMinimumSize(QtCore.QSize(400, 100))
+        Form.setMaximumSize(QtCore.QSize(400, 100))
         self.verticalLayout = QtWidgets.QVBoxLayout(Form)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(Form)

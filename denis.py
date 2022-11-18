@@ -341,6 +341,7 @@ class King(Figure):
         c = self.coords[1]
         if ch == 1 and attack_field[r, c] != ():
             return True
+        print(attack_field)
         if attack_field[r][c] != ():
             for i in range(-1, 2):
                 for j in range(-1, 2):
