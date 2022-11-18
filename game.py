@@ -13,9 +13,10 @@ class Chess(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
 
+        self.main_fig = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
         self.new_game()
-        self.action.triggered(self.new_game)
-        self.action_2.triggered(self.exit)
+        self.action.triggered.connect(self.new_game)
+        self.action_2.triggered.connect(self.exit)
 
         self.rc = ()
         self.color = 0
@@ -23,7 +24,6 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.count_steps = 0
         self.attack_field = None
         self.signal_color = None
-        self.main_fig = [Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook]
 
     def new_game(self):
         self.attack_field = [[()] * 8 for _ in range(8)]
@@ -39,7 +39,7 @@ class Chess(QMainWindow, Ui_MainWindow):
             for c in range(8):
                 if self.field[r][c]:
                     pix_name = self.field[r][c].char()
-                    eval(f'self.cell{r}{c}.setPixmap(QPixmap({pix_name}{self.field[r][c].get_color()}.png)')
+                    eval(f'self.cell{r}{c}.setPixmap(QPixmap("{pix_name}{self.field[r][c].get_color()}.png"))')
         self.rc = ()
         self.color = 0
         self.field = []
@@ -111,8 +111,8 @@ class Chess(QMainWindow, Ui_MainWindow):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            x = event.x // 60 - 1
-            y = event.y // 60 - 1
+            x = event.x() // 60 - 1
+            y = event.y() // 60 - 1
             if self.correct_coords(x, y):
                 self.rc += (x, y)
         if len(self.rc) == 4:
