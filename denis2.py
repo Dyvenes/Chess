@@ -39,6 +39,7 @@ class Choise_figure(QWidget):
 
     def send_signal(self, btn):
         self.figure.emit(btn.text())
+        print("emit")
         self.close()
 
 
@@ -48,11 +49,9 @@ class Choise_color(QWidget, Ui_Form):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        print("choise color")
         self.buttonGroup.buttonClicked.connect(self.send_signal)
 
     def send_signal(self, btn):
-        print("closed")
         self.color.emit(btn.text())
         self.close()
 

@@ -78,13 +78,11 @@ class Chess(QMainWindow, Ui_MainWindow):
             return
         if not self.is_castling(coordinats):
             if self.move_piece(row, col, row1, col1):
-                print('self.color', self.current_player_color())
                 self.rendering()
                 self.clear_atfld()
                 self.attack_field_func()
                 dan = self.danger()
                 print("dan = ", dan)
-                print(self.current_player_color())
                 if dan == "мат":
                     if not self.current_player_color() == WHITE:
                         self.win = end_of_game(1)
@@ -99,22 +97,27 @@ class Chess(QMainWindow, Ui_MainWindow):
                 self.statusBar().showMessage('Координаты некорректны! Попробуйте другой ход!')
                 return
         else:
+            print("castling")
             if row == 0 and col == 4 and self.current_player_color() == WHITE and self.get_piece(0, 4) == King and \
                     self.get_piece(0, 4).poss_cast:
-
+                print("cast 2")
                 if row1 == 0 and col1 == 2 and self.get_piece(0, 0) == Rook and \
                         self.get_piece(0, 0).poss_cast:
+                    print("cast 3")
                     self.castling(0, 4, 0, 2, 0, 0, 0, 3)
                 elif row1 == 0 and col1 == 6 and self.get_piece(0, 7) == Rook and \
                         self.get_piece(0, 7).poss_cast:
                     self.castling(0, 4, 0, 6, 0, 7, 0, 5)
             elif row == 7 and col == 4 and self.current_player_color() == BLACK and self.get_piece(7, 4) == King and \
                     self.get_piece(7, 4).poss_cast:
+                print("cast 2")
                 if row1 == 7 and col1 == 2 and self.get_piece(0, 0) == Rook and \
                         self.get_piece(0, 0).poss_cast:
+                    print("cast 3")
                     self.castling(7, 4, 7, 2, 7, 0, 7, 3)
                 elif row1 == 7 and col1 == 6 and self.get_piece(0, 7) == Rook and \
                         self.get_piece(0, 7).poss_cast:
+                    print("cast 3")
                     self.castling(7, 4, 7, 6, 7, 7, 7, 5)
             self.rendering()
         return
@@ -173,7 +176,6 @@ class Chess(QMainWindow, Ui_MainWindow):
         if piece.get_color() != self.color:
             return False
         dan = self.danger()
-        print("dan in move piece = ", dan)
         if dan == "шах":
             self.ch = 1
         elif dan == "мат":
@@ -188,11 +190,16 @@ class Chess(QMainWindow, Ui_MainWindow):
                 return False
         else:
             return False
-        if piece == Pawn and ((piece.get_color() == WHITE and row1 == 7) or
+        if piece.char() == "P" and ((piece.get_color() == WHITE and row1 == 7) or
                               (piece.get_color() == BLACK and row1 == 0)):
-            piece = piece.metamorphose()
+            piece =  piece.meta_signal()
         self.field[row][col] = None
+        save = self.field[row1][col1]
         self.field[row1][col1] = piece
+        if self.danger() and self.ch == 1:
+            self.field[row][col] = piece
+            self.field[row1][col1] = save
+            return False
         self.color = self.opponent(self.color)
         return True
 
@@ -206,10 +213,15 @@ class Chess(QMainWindow, Ui_MainWindow):
         for r in range(8):
             for c in range(8):
                 if self.field[r][c] and self.field[r][c].get_color() != self.color:
-                    self.attack_field = self.field[r][c].paint_field(self.field, self.attack_field, r, c)
+                    self.def_field = self.field[r][c].paint_field(self.field, self.def_field, None, r, c)
+        for r in range(8):
+            for c in range(8):
+                if self.field[r][c] and self.field[r][c].get_color() != self.color:
+                    self.attack_field = self.field[r][c].paint_field(self.field, self.attack_field, self.def_field, r, c)
 
     def clear_atfld(self):
-        self.attack_field = [[()] * 8 for _ in range(8)]
+        self.attack_field = [[0] * 8 for _ in range(8)]
+        self.def_field = [[0] * 8 for _ in range(8)]
 
     def danger(self):
         for i in self.field:
