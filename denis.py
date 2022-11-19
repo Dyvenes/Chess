@@ -47,17 +47,17 @@ class Queen(Figure):
             c = col
             for r in range(row + step, row1, step):
                 c += step2
-                if not (board.get_piece(r, c) is None):
+                if not (board[r][c] is None):
                     return False
         else:
             step = 1 if (row1 >= row) else -1
             for r in range(row + step, row1, step):
-                if not (board.get_piece(r, col) is None):
+                if not (board[r][col] is None):
                     return False
 
             step = 1 if (col1 >= col) else -1
             for c in range(col + step, col1, step):
-                if not (board.get_piece(row, c) is None):
+                if not (board[row][c] is None):
                     return False
         return True
 
@@ -76,8 +76,8 @@ class Queen(Figure):
                     c += j
                     if not self.correct_coords(r, c):
                         break
-                    elif not (board.get_piece(r, c) is None):
-                        if board.get_piece(r, c).get_color() != self.color:
+                    elif not (board[r][c] is None):
+                        if board[r][c].get_color() != self.color:
                             attack_field[r][c] += (1,)
                         break
                     attack_field[r][c] += (1,)
@@ -88,8 +88,8 @@ class Queen(Figure):
                 r += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
+                elif not (board[r][c] is None):
+                    if board[r][c].get_color() != self.color:
                         attack_field[r][c] += (1,)
                     break
                 attack_field[r][c] += (1,)
@@ -100,8 +100,8 @@ class Queen(Figure):
                 c += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
+                elif not (board[r][c] is None):
+                    if board[r][c].get_color() != self.color:
                         attack_field[r][c] += (1,)
                     break
                 attack_field[r][c] += (1,)
@@ -216,8 +216,8 @@ class Rook(Figure):
                 r += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
+                elif not (board[r][c] is None):
+                    if board[r][c].get_color() != self.color:
                         attack_field[r][c] += (4,)
                     break
                 attack_field[r][c] += (4,)
@@ -228,8 +228,8 @@ class Rook(Figure):
                 c += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
+                elif not (board[r][c] is None):
+                    if board[r][c].get_color() != self.color:
                         attack_field[r][c] += (4,)
                     break
                 attack_field[r][c] += (4,)
@@ -293,8 +293,8 @@ class Bishop(Figure):
                     c += j
                     if not self.correct_coords(r, c):
                         break
-                    elif not (board.get_piece(r, c) is None):
-                        if board.get_piece(r, c).get_color() != self.color:
+                    elif not (board[r][c] is None):
+                        if board[r][c].get_color() != self.color:
                             attack_field[r][c] += (2,)
                         break
                     attack_field[r][c] += (2,)
@@ -331,7 +331,7 @@ class King(Figure):
             for j in range(-1, 2):
                 if not self.correct_coords(r + i, c + j):
                     break
-                elif not (board.get_piece(r + i, c + j) is None):
+                elif not (board[r + i][c + j] is None):
                     break
                 attack_field[r + i][c + j] += (0,)
         return attack_field
@@ -341,13 +341,13 @@ class King(Figure):
         c = self.coords[1]
         if ch == 1 and attack_field[r, c] != ():
             return True
-        print(attack_field)
+        print("King danger")
         if attack_field[r][c] != ():
             for i in range(-1, 2):
                 for j in range(-1, 2):
                     if self.correct_coords(r + i, c + j) and \
                             attack_field[r + i][c + j] == () and \
-                            board.get_piece(r + i, c + j) is None:
+                            board[r + i][c + j] is None:
                         return "шах"
             return "мат"
         return False

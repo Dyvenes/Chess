@@ -62,6 +62,7 @@ class end_of_game(QWidget, Ui_Form_2):
 
     def __init__(self, color):
         super().__init__()
+        self.setupUi(self)
         self.color = color
         if self.color:
             self.label.setText('БЕЛЫЕ ВЫИГРАЛИ!')
