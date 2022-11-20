@@ -24,7 +24,7 @@ class Figure:
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, r, c):
+    def paint_field(self, board, attack_field, def_field,  r, c):
         pass
 
     def get_type(self):
@@ -47,24 +47,25 @@ class Queen(Figure):
             c = col
             for r in range(row + step, row1, step):
                 c += step2
-                if not (board.get_piece(r, c) is None):
+                if not (board[r][c] is None):
                     return False
         else:
             step = 1 if (row1 >= row) else -1
             for r in range(row + step, row1, step):
-                if not (board.get_piece(r, col) is None):
+                if not (board[r][col] is None):
                     return False
 
             step = 1 if (col1 >= col) else -1
             for c in range(col + step, col1, step):
-                if not (board.get_piece(row, c) is None):
+                if not (board[row][c] is None):
                     return False
         return True
 
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
+        coef = 1
         rz = r
         cz = c
         for i in range(-1, 2, 2):
@@ -76,11 +77,15 @@ class Queen(Figure):
                     c += j
                     if not self.correct_coords(r, c):
                         break
-                    elif not (board.get_piece(r, c) is None):
-                        if board.get_piece(r, c).get_color() != self.color:
-                            attack_field[r][c] += (1,)
+                    elif def_field and def_field[r][c] != 0:
+                        coef = 0
+                    elif not (board[r][c] is None):
+                        if board[r][c].get_color() != self.color:
+                            attack_field[r][c] = coef
+                            if board[r][c].char() == "K":
+                                attack_field[r][c] = 1
                         break
-                    attack_field[r][c] += (1,)
+                    attack_field[r][c] = coef
         c = cz
         for i in range(-1, 2, 2):
             r = rz
@@ -88,11 +93,16 @@ class Queen(Figure):
                 r += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
-                        attack_field[r][c] += (1,)
+                elif def_field and def_field[r][c] != 0:
+                    coef = 0
+                elif not (board[r][c] is None):
+                    print(board[r][c], self.color)
+                    if board[r][c].get_color() != self.color:
+                        attack_field[r][c] = coef
+                        if board[r][c].char() == "K":
+                            attack_field[r][c] = 1
                     break
-                attack_field[r][c] += (1,)
+                attack_field[r][c] = coef
         r = rz
         for i in range(-1, 2, 2):
             c = cz
@@ -100,15 +110,24 @@ class Queen(Figure):
                 c += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
-                        attack_field[r][c] += (1,)
+                elif def_field and def_field[r][c] != 0:
+                    coef = 0
+                elif not (board[r][c] is None):
+                    if board[r][c].get_color() != self.color:
+                        attack_field[r][c] = coef
+                        if board[r][c].char() == "K":
+                            attack_field[r][c] = 1
                     break
-                attack_field[r][c] += (1,)
+                attack_field[r][c] = coef
         return attack_field
 
 
 class Pawn(Figure):
+    def __init__(self, color):
+        super().__init__(color)
+        self.meta_fig = None
+        self.choise_fig = None
+
     def char(self):
         return 'P'
 
@@ -132,19 +151,25 @@ class Pawn(Figure):
         return False
 
     def meta_signal(self):
-        choise_fig = Choise_figure()
-        choise_fig.show()
-        choise_fig.figure.connect(self.metamorphose)
+        print("meta_signal")
+        self.choise_fig = Choise_figure()
+        print("не упал")
+        self.choise_fig.show()
+        print("не упал")
+        self.choise_fig.figure.connect(self.metamorphose)
+        print("не упал")
+        return self.meta_fig
 
     def metamorphose(self, choise_fig):
+        print("metamorphose")
         if choise_fig == 'Bishop':
-            return Bishop(self.color)
+            self.meta_fig = Bishop(self.color)
         elif choise_fig == 'Knight':
-            return Knight(self.color)
+            self.meta_fig = Knight(self.color)
         elif choise_fig == 'Rook':
-            return Rook(self.color)
+            self.meta_fig = Rook(self.color)
         else:
-            return Queen(self.color)
+            self.meta_fig = Queen(self.color)
 
     def can_attack(self, board, row, col, row1, col1):
         if col == col1 or row == row1:
@@ -160,23 +185,23 @@ class Pawn(Figure):
 
         return False
 
-    def paint_field(self, board, attack_field, r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
         if self.color == BLACK:
             if c == 0:
-                attack_field[r - 1][c + 1] += (5,)
+                attack_field[r - 1][c + 1] = 1
             elif c == 7:
-                attack_field[r - 1][c - 1] += (5,)
+                attack_field[r - 1][c - 1] = 1
             elif r != 0:
-                attack_field[r - 1][c - 1] += (5,)
-                attack_field[r - 1][c + 1] += (5,)
+                attack_field[r - 1][c - 1] = 1
+                attack_field[r - 1][c + 1] = 1
         else:
             if c == 0:
-                attack_field[r + 1][c + 1] += (5,)
+                attack_field[r + 1][c + 1] = 1
             elif c == 7:
-                attack_field[r + 1][c - 1] += (5,)
+                attack_field[r + 1][c - 1] = 1
             elif r != 7:
-                attack_field[r + 1][c - 1] += (5,)
-                attack_field[r + 1][c + 1] += (5,)
+                attack_field[r + 1][c - 1] = 1
+                attack_field[r + 1][c + 1] = 1
         return attack_field
 
 
@@ -207,20 +232,25 @@ class Rook(Figure):
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
         rz = r
         cz = c
+        coef = 1
         for i in range(-1, 2, 2):
             r = rz
             while True:
                 r += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
-                        attack_field[r][c] += (4,)
+                elif def_field and def_field[r][c] != 0:
+                    coef = 0
+                elif not (board[r][c] is None):
+                    if board[r][c].get_color() != self.color:
+                        attack_field[r][c] = coef
+                        if board[r][c].char() == "K":
+                            attack_field[r][c] = 1
                     break
-                attack_field[r][c] += (4,)
+                attack_field[r][c] = coef
         r = rz
         for i in range(-1, 2, 2):
             c = cz
@@ -228,11 +258,15 @@ class Rook(Figure):
                 c += i
                 if not self.correct_coords(r, c):
                     break
-                elif not (board.get_piece(r, c) is None):
-                    if board.get_piece(r, c).get_color() != self.color:
-                        attack_field[r][c] += (4,)
+                elif def_field and def_field[r][c] != 0:
+                    coef = 1
+                elif not (board[r][c] is None):
+                    if board[r][c].get_color() != self.color:
+                        attack_field[r][c] = coef
+                        if board[r][c].char() == "K":
+                            attack_field[r][c] = 1
                     break
-                attack_field[r][c] += (4,)
+                attack_field[r][c] = coef
         return attack_field
 
 
@@ -250,13 +284,13 @@ class Knight(Figure):
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
         for i in range(-2, 3):
             for j in range(-2, 3):
                 if abs(i) - abs(j) == 0 or i == 0 or j == 0:
                     continue
                 if self.correct_coords(r + i, c + j):
-                    attack_field[r + i][c + j] += (3,)
+                    attack_field[r + i][c + j] = 1
         return attack_field
 
 
@@ -281,7 +315,8 @@ class Bishop(Figure):
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
+        coef = 1
         rz = r
         cz = c
         for i in range(-1, 2, 2):
@@ -293,11 +328,15 @@ class Bishop(Figure):
                     c += j
                     if not self.correct_coords(r, c):
                         break
-                    elif not (board.get_piece(r, c) is None):
-                        if board.get_piece(r, c).get_color() != self.color:
-                            attack_field[r][c] += (2,)
+                    elif def_field and def_field[r][c] != 0:
+                        coef = 0
+                    elif not (board[r][c] is None):
+                        if board[r][c].get_color() != self.color:
+                            attack_field[r][c] = coef
+                            if board[r][c].char() == "K":
+                                attack_field[r][c] = 1
                         break
-                    attack_field[r][c] += (2,)
+                    attack_field[r][c] = coef
         return attack_field
 
 
@@ -305,6 +344,7 @@ class King(Figure):
     def __init__(self, color):
         super().__init__(color)
         self.poss_cast = True
+        self.color = color
         if self.color == WHITE:
             self.coords = (0, 4)
         else:
@@ -317,7 +357,8 @@ class King(Figure):
         self.poss_cast = False
         if not self.correct_coords(row, col):
             return False
-        if abs(row - row) != 1 and abs(col - col) != 1:
+        print(row, col, row1, col1)
+        if abs(row1 - row) != 1 and abs(col1 - col) != 1:
             return False
         else:
             self.coords = (row1, col1)
@@ -326,27 +367,27 @@ class King(Figure):
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
         for i in range(-1, 2):
             for j in range(-1, 2):
                 if not self.correct_coords(r + i, c + j):
                     break
-                elif not (board.get_piece(r + i, c + j) is None):
+                elif not (board[r + i][c + j] is None):
                     break
-                attack_field[r + i][c + j] += (0,)
+                attack_field[r + i][c + j] = 1
         return attack_field
 
     def danger(self, board, attack_field, ch):
         r = self.coords[0]
         c = self.coords[1]
-        if ch == 1 and attack_field[r, c] != ():
+        if ch == 1 and attack_field[r][c] != 0:
             return True
-        if attack_field[r][c] != ():
+        if attack_field[r][c] != 0:
             for i in range(-1, 2):
                 for j in range(-1, 2):
                     if self.correct_coords(r + i, c + j) and \
-                            attack_field[r + i][c + j] == () and \
-                            board.get_piece(r + i, c + j) is None:
+                            attack_field[r + i][c + j] == 0 and \
+                            board[r + i][c + j] is None:
                         return "шах"
             return "мат"
         return False
