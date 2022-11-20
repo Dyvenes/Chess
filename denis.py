@@ -394,3 +394,4 @@ class King(Figure):
 
     def get_type(self):
         return "King"
+

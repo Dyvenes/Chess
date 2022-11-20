@@ -100,3 +100,4 @@ class Statistic_rend(QWidget):
             for j, val in enumerate(elem):
                 self.tableWidget.setItem(i, j, QTableWidgetItem(str(val)))
         self.modified = {}
+

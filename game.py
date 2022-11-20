@@ -302,3 +302,4 @@ if __name__ == '__main__':
     game.show()
     sys.excepthook = except_hook
     sys.exit(app.exec())
+
