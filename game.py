@@ -61,7 +61,8 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.signal_color.color.connect(self.set_color)
 
     def statistic_rend(self):
-        Statistic_rend().show()
+        self.stat_rend = Statistic_rend()
+        self.stat_rend.show()
 
     def set_color(self, color):
         self.nickname = color[1]

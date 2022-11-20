@@ -1,3 +1,5 @@
+import sqlite3
+
 from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QButtonGroup, QTableWidget, \
     QTableWidgetItem
 from PyQt5.QtCore import pyqtSignal
@@ -85,11 +87,16 @@ class Statistic_rend(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('СТАТИСТИКА ИГРОКОВ')
+        self.setGeometry(900, 300)
+        self.verLayout = QVBoxLayout(self)
+        self.tableWidget = QTableWidget(self)
         self.layout().addWidget(QTableWidget(self))
+        self.update_result()
 
     def update_result(self):
-        cur = self.con.cursor()
-        result = cur.execute("SELECT * FROM films").fetchall()
+        con = sqlite3.connect("chess_db.db")
+        cur = con.cursor()
+        result = cur.execute("SELECT * FROM statistic").fetchall()
         self.tableWidget.setRowCount(len(result))
         if not result:
             self.statusBar().showMessage('Никто не играл(')
