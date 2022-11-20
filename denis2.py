@@ -87,7 +87,7 @@ class Statistic_rend(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('СТАТИСТИКА ИГРОКОВ')
-        self.setGeometry(900, 300)
+        self.setGeometry(300, 300, 900, 300)
         self.verLayout = QVBoxLayout(self)
         self.tableWidget = QTableWidget(self)
         self.layout().addWidget(QTableWidget(self))
