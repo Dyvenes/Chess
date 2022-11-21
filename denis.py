@@ -127,6 +127,7 @@ class Pawn(Figure):
         super().__init__(color)
         self.meta_fig = None
         self.choise_fig = None
+        self.chess = None
 
     def char(self):
         return 'P'
@@ -150,26 +151,22 @@ class Pawn(Figure):
 
         return False
 
-    def meta_signal(self):
-        print("meta_signal")
-        self.choise_fig = Choise_figure()
-        print("не упал")
-        self.choise_fig.show()
-        print("не упал")
-        self.choise_fig.figure.connect(self.metamorphose)
-        print("не упал")
+    def meta_signal(self, chess):
+        chess.choise_fig = Choise_figure()
+        chess.choise_fig.show()
+        chess.choise_fig.figure.connect(self.metamorphose)
         return self.meta_fig
 
-    def metamorphose(self, choise_fig):
+    def metamorphose(self, choise_fig, chess):
         print("metamorphose")
         if choise_fig == 'Bishop':
-            self.meta_fig = Bishop(self.color)
+            chess.meta_fig = Bishop(self.color)
         elif choise_fig == 'Knight':
-            self.meta_fig = Knight(self.color)
+            chess.meta_fig = Knight(self.color)
         elif choise_fig == 'Rook':
-            self.meta_fig = Rook(self.color)
+            chess.meta_fig = Rook(self.color)
         else:
-            self.meta_fig = Queen(self.color)
+            chess.meta_fig = Queen(self.color)
 
     def can_attack(self, board, row, col, row1, col1):
         if col == col1 or row == row1:
@@ -187,17 +184,17 @@ class Pawn(Figure):
 
     def paint_field(self, board, attack_field, def_field, r, c):
         if self.color == BLACK:
-            if c == 0:
+            if r != 0 and c == 0:
                 attack_field[r - 1][c + 1] = 1
-            elif c == 7:
+            elif r != 0 and c == 7:
                 attack_field[r - 1][c - 1] = 1
             elif r != 0:
                 attack_field[r - 1][c - 1] = 1
                 attack_field[r - 1][c + 1] = 1
         else:
-            if c == 0:
+            if r != 7 and c == 0:
                 attack_field[r + 1][c + 1] = 1
-            elif c == 7:
+            elif r != 7 and c == 7:
                 attack_field[r + 1][c - 1] = 1
             elif r != 7:
                 attack_field[r + 1][c - 1] = 1

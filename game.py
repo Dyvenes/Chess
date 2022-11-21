@@ -23,6 +23,8 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.rc = ()
         self.color = 1
         self.field = []
+        self.choise_fig = None
+        self.meta_fig = None
         self.ch = 0
         self.count_steps = 0
         self.attack_field = None
@@ -65,8 +67,8 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.stat_rend.show()
 
     def set_color(self, color):
-        self.nickname = color[1]
-        color = color[0]
+        self.nickname = color[6:]
+        color = color[:6]
         if color == 'WHITE':
             pass
             self.player_color = WHITE
@@ -84,7 +86,6 @@ class Chess(QMainWindow, Ui_MainWindow):
         sql = f"""SELECT "колличество игр", "колличество побед", "максимальное колличесвто шагов", "минимальное колличество шагов"
          From statistic Where nicks = '{self.nickname}'"""
         result = cur.execute(sql).fetchall()
-        print(result)
         if result:
             result = result[0]
             max_steps = result[2]
@@ -131,12 +132,12 @@ class Chess(QMainWindow, Ui_MainWindow):
             if self.move_piece(row, col, row1, col1):
                 self.rendering()
                 self.count_steps += 1
-                self.statistic()
                 self.clear_atfld()
                 self.attack_field_func()
                 dan = self.danger()
                 print("dan = ", dan)
                 if dan == "мат":
+                    self.statistic()
                     if not self.current_player_color() == WHITE:
                         self.win = End_of_game(1)
                         self.win.show()
@@ -150,29 +151,26 @@ class Chess(QMainWindow, Ui_MainWindow):
                 self.statusBar().showMessage('Координаты некорректны! Попробуйте другой ход!')
                 return
         else:
-            print("castling")
-            if row == 0 and col == 4 and self.current_player_color() == WHITE and self.get_piece(0, 4) == King and \
+            if row == 0 and col == 4 and self.field[row][
+                col] and self.current_player_color() == WHITE and self.get_piece(0, 4).char() == 'K' and \
                     self.get_piece(0, 4).poss_cast:
-                print("cast 2")
-                if row1 == 0 and col1 == 2 and self.get_piece(0, 0) == Rook and \
+                if row1 == 0 and col1 == 2 and self.field[0][0] and self.get_piece(0, 0).char() == 'R' and \
                         self.get_piece(0, 0).poss_cast:
-                    print("cast 3")
                     self.castling(0, 4, 0, 2, 0, 0, 0, 3)
-                elif row1 == 0 and col1 == 6 and self.get_piece(0, 7) == Rook and \
+                elif row1 == 0 and col1 == 6 and self.field[0][7] and self.get_piece(0, 7).char() == 'R' and \
                         self.get_piece(0, 7).poss_cast:
                     self.castling(0, 4, 0, 6, 0, 7, 0, 5)
-            elif row == 7 and col == 4 and self.current_player_color() == BLACK and self.get_piece(7, 4) == King and \
+            elif row == 7 and col == 4 and self.field[row][
+                col] and self.current_player_color() == BLACK and self.get_piece(7, 4).char() == 'K' and \
                     self.get_piece(7, 4).poss_cast:
-                print("cast 2")
-                if row1 == 7 and col1 == 2 and self.get_piece(0, 0) == Rook and \
-                        self.get_piece(0, 0).poss_cast:
-                    print("cast 3")
+                if row1 == 7 and col1 == 2 and self.field[7][0] and self.get_piece(7, 0).char() == 'R' and \
+                        self.get_piece(7, 0).poss_cast:
                     self.castling(7, 4, 7, 2, 7, 0, 7, 3)
-                elif row1 == 7 and col1 == 6 and self.get_piece(0, 7) == Rook and \
-                        self.get_piece(0, 7).poss_cast:
-                    print("cast 3")
+                elif row1 == 7 and col1 == 6 and self.field[7][7] and self.get_piece(7, 7) == Rook and \
+                        self.get_piece(7, 7).poss_cast:
                     self.castling(7, 4, 7, 6, 7, 7, 7, 5)
             self.rendering()
+            self.color = self.opponent(self.color)
         return
         # отрисовка поля в окне игры
 
@@ -202,9 +200,9 @@ class Chess(QMainWindow, Ui_MainWindow):
         return 0 <= row < 8 and 0 <= col < 8
 
     def is_castling(self, coordinats):
-        if coordinats == (0, 4, 0, 2) and \
-                coordinats == (0, 4, 0, 6) and \
-                coordinats == (7, 4, 7, 2) and \
+        if coordinats == (0, 4, 0, 2) or \
+                coordinats == (0, 4, 0, 6) or \
+                coordinats == (7, 4, 7, 2) or \
                 coordinats == (7, 4, 7, 6):
             return True
         return False
@@ -245,7 +243,9 @@ class Chess(QMainWindow, Ui_MainWindow):
             return False
         if piece.char() == "P" and ((piece.get_color() == WHITE and row1 == 7) or
                                     (piece.get_color() == BLACK and row1 == 0)):
-            piece = piece.meta_signal()
+            piece.meta_signal(self)
+            piece = self.meta_fig
+
         self.field[row][col] = None
         save = self.field[row1][col1]
         self.field[row1][col1] = piece
@@ -303,4 +303,3 @@ if __name__ == '__main__':
     game.show()
     sys.excepthook = except_hook
     sys.exit(app.exec())
-

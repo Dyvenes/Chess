@@ -58,7 +58,7 @@ class Choise_color(QWidget, Ui_Form):
     def send_signal(self, btn):
         lineEdit_txt = self.lineEdit.text()
         if lineEdit_txt:
-            self.color.emit(btn.text(), lineEdit_txt)
+            self.color.emit(btn.text() + lineEdit_txt)
             self.close()
         else:
             pass
@@ -87,8 +87,8 @@ class Statistic_rend(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('СТАТИСТИКА ИГРОКОВ')
-        self.setGeometry(300, 300, 900, 300)
         self.verLayout = QVBoxLayout(self)
+        self.setGeometry(300, 300, 900, 300)
         self.tableWidget = QTableWidget(self)
         self.layout().addWidget(QTableWidget(self))
         self.update_result()
@@ -96,15 +96,18 @@ class Statistic_rend(QWidget):
     def update_result(self):
         con = sqlite3.connect("chess_db.db")
         cur = con.cursor()
-        result = cur.execute("SELECT * FROM statistic").fetchall()
+        result = cur.execute(
+            'SELECT nicks, "колличество игр", "колличество побед", "% побед", '
+            '"максимальное колличесвто шагов", "минимальное колличество шагов" FROM statistic').fetchall()
         self.tableWidget.setRowCount(len(result))
         if not result:
             self.statusBar().showMessage('Никто не играл(')
             return
         self.tableWidget.setColumnCount(len(result[0]))
         self.titles = [description[0] for description in cur.description]
+        for i in range(len(self.titles)):
+            self.tableWidget.setItem(0, i, QTableWidgetItem(self.titles[i]))
         for i, elem in enumerate(result):
             for j, val in enumerate(elem):
                 self.tableWidget.setItem(i, j, QTableWidgetItem(str(val)))
         self.modified = {}
-
