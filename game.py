@@ -234,10 +234,10 @@ class Chess(QMainWindow, Ui_MainWindow):
         elif not dan:
             self.ch = 0
         if self.field[row1][col1] is None:
-            if not piece.can_move(self.field, row, col, row1, col1):
+            if not piece.can_move(self, row, col, row1, col1):
                 return False
         elif self.field[row1][col1].get_color() == self.opponent(piece.get_color()):
-            if not piece.can_attack(self.field, row, col, row1, col1):
+            if not piece.can_attack(self, row, col, row1, col1):
                 return False
         else:
             return False
