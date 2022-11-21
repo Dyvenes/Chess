@@ -10,7 +10,7 @@ from victory import Ui_Form_2
 class Choise_figure(QWidget):
     figure = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, chess):
         super().__init__()
         self.setWindowTitle('ВЫБОР ФИГУРЫ')
         self.verticalLayout = QVBoxLayout(self)
@@ -42,7 +42,6 @@ class Choise_figure(QWidget):
 
     def send_signal(self, btn):
         self.figure.emit(btn.text())
-        print("emit")
         self.close()
 
 

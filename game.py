@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 
 from denis import BLACK, WHITE, Pawn, King, Rook, Knight, Bishop, Queen
 from ch_board import Ui_MainWindow
-from denis2 import Choise_color, End_of_game, Statistic_rend
+from denis2 import Choise_color, End_of_game, Statistic_rend, Choise_figure
 
 
 class Chess(QMainWindow, Ui_MainWindow):
@@ -28,9 +28,10 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.ch = 0
         self.count_steps = 0
         self.attack_field = None
-        self.new_game()
         self.player_color = 0
         self.nickname = None
+        self.show()
+        self.new_game()
 
     def new_game(self):
         self.attack_field = [[()] * 8 for _ in range(8)]
@@ -244,7 +245,9 @@ class Chess(QMainWindow, Ui_MainWindow):
         if piece.char() == "P" and ((piece.get_color() == WHITE and row1 == 7) or
                                     (piece.get_color() == BLACK and row1 == 0)):
             piece.meta_signal(self)
+            piece.signal_fig.connect(self.ret_signal)
             piece = self.meta_fig
+            print(piece)
 
         self.field[row][col] = None
         save = self.field[row1][col1]
@@ -262,6 +265,9 @@ class Chess(QMainWindow, Ui_MainWindow):
             return False
         self.color = self.opponent(self.color)
         return True
+
+    def ret_signal(self, signal):
+        self.meta_fig = signal
 
     def castling(self, kr, kc, kr1, kc1, rr, rc, rr1, rc1):
         self.field[kr][kc] = None

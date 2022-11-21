@@ -1,3 +1,5 @@
+from PyQt5.QtCore import pyqtSignal
+
 WHITE = 1
 BLACK = 0
 
@@ -24,7 +26,7 @@ class Figure:
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, def_field,  r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
         pass
 
     def get_type(self):
@@ -123,11 +125,10 @@ class Queen(Figure):
 
 
 class Pawn(Figure):
+    choise_fig = pyqtSignal(Figure)
+
     def __init__(self, color):
         super().__init__(color)
-        self.meta_fig = None
-        self.choise_fig = None
-        self.chess = None
 
     def char(self):
         return 'P'
@@ -155,18 +156,17 @@ class Pawn(Figure):
         chess.choise_fig = Choise_figure()
         chess.choise_fig.show()
         chess.choise_fig.figure.connect(self.metamorphose)
-        return self.meta_fig
 
-    def metamorphose(self, choise_fig, chess):
+    def metamorphose(self, choise_fig):
         print("metamorphose")
         if choise_fig == 'Bishop':
-            chess.meta_fig = Bishop(self.color)
+            self.choise_fig.emit(Bishop(self.color))
         elif choise_fig == 'Knight':
-            chess.meta_fig = Knight(self.color)
+            self.choise_fig.emit(Knight(self.color))
         elif choise_fig == 'Rook':
-            chess.meta_fig = Rook(self.color)
+            self.choise_fig.emit(Rook(self.color))
         else:
-            chess.meta_fig = Queen(self.color)
+            self.choise_fig.emit(Queen(self.color))
 
     def can_attack(self, board, row, col, row1, col1):
         if col == col1 or row == row1:
@@ -391,4 +391,3 @@ class King(Figure):
 
     def get_type(self):
         return "King"
-
