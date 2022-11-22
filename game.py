@@ -244,11 +244,10 @@ class Chess(QMainWindow, Ui_MainWindow):
             return False
         if piece.char() == "P" and ((piece.get_color() == WHITE and row1 == 7) or
                                     (piece.get_color() == BLACK and row1 == 0)):
-            piece.meta_signal(self)
-            piece.signal_fig.connect(self.ret_signal)
-            piece = self.meta_fig
+            piece = Choise_figure()
+            piece.show()
+            piece = piece.exec()
             print(piece)
-
         self.field[row][col] = None
         save = self.field[row1][col1]
         self.field[row1][col1] = piece
