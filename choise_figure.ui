@@ -38,28 +38,28 @@
      <item>
       <widget class="QPushButton" name="pushButton">
        <property name="text">
-        <string>PushButton</string>
+        <string>Ферзь</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_2">
        <property name="text">
-        <string>PushButton</string>
+        <string>Слон</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_3">
        <property name="text">
-        <string>PushButton</string>
+        <string>Конь</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_4">
        <property name="text">
-        <string>PushButton</string>
+        <string>Ладья</string>
        </property>
       </widget>
      </item>

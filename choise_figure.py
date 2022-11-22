@@ -45,7 +45,7 @@ class Ui_Choise_dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Choise_dialog.setWindowTitle(_translate("Choise_dialog", "ВЫБОР ФИГУРЫ"))
         self.label.setText(_translate("Choise_dialog", "Выберите фигуру, которой станет пешка:"))
-        self.pushButton.setText(_translate("Choise_dialog", "PushButton"))
-        self.pushButton_2.setText(_translate("Choise_dialog", "PushButton"))
-        self.pushButton_3.setText(_translate("Choise_dialog", "PushButton"))
-        self.pushButton_4.setText(_translate("Choise_dialog", "PushButton"))
+        self.pushButton.setText(_translate("Choise_dialog", "Ферзь"))
+        self.pushButton_2.setText(_translate("Choise_dialog", "Слон"))
+        self.pushButton_3.setText(_translate("Choise_dialog", "Конь"))
+        self.pushButton_4.setText(_translate("Choise_dialog", "Ладья"))
