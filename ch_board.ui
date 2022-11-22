@@ -3441,7 +3441,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="label_message">
         <property name="minimumSize">
          <size>
           <width>500</width>
@@ -3453,6 +3453,11 @@
           <width>512</width>
           <height>512</height>
          </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+         </font>
         </property>
         <property name="text">
          <string/>
