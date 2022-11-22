@@ -1,4 +1,4 @@
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QObject
 
 WHITE = 1
 BLACK = 0
@@ -6,8 +6,9 @@ BLACK = 0
 from denis2 import Choise_figure
 
 
-class Figure:
+class Figure(QObject):
     def __init__(self, color):
+        super(Figure, self).__init__()
         self.color = color
 
     def get_color(self):

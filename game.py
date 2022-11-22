@@ -245,7 +245,7 @@ class Chess(QMainWindow, Ui_MainWindow):
         if piece.char() == "P" and ((piece.get_color() == WHITE and row1 == 7) or
                                     (piece.get_color() == BLACK and row1 == 0)):
             piece.meta_signal(self)
-            piece.signal_fig.connect(self.ret_signal)
+            piece.choise_fig.connect(self.ret_signal)
             piece = self.meta_fig
             print(piece)
 
