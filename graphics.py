@@ -1,22 +1,23 @@
 import sqlite3
 
 from PyQt5.QtWidgets import QLabel, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QButtonGroup, QTableWidget, \
-    QTableWidgetItem
+    QTableWidgetItem, QDialog
 from PyQt5.QtCore import pyqtSignal
 from choise_color import Ui_Form
 from victory import Ui_Form_2
 from choise_figure import Ui_Choise_dialog
 
 
-class Choise_figure(QWidget, Ui_Choise_dialog):
-    #figure = pyqtSignal(str)
+class Choise_figure(QDialog, Ui_Choise_dialog):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.figure = None
+        self.buttonGroup.buttonClicked.connect(self.send_signal)
 
-    #def send_signal(self, btn):
-    #    self.figure.emit(btn.text())
-    #    self.close()
+    def send_signal(self, btn):
+        self.figure = btn.text()
+        self.accept()
 
 
 class Choise_color(QWidget, Ui_Form):
@@ -63,7 +64,7 @@ class Statistic_rend(QWidget):
         self.verLayout = QVBoxLayout(self)
         self.setGeometry(300, 300, 900, 300)
         self.tableWidget = QTableWidget(self)
-        self.layout().addWidget(QTableWidget(self))
+        self.layout().addWidget(self.tableWidget)
         self.update_result()
 
     def update_result(self):

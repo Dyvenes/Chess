@@ -5,9 +5,9 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow, QApplication
 from PyQt5.QtCore import Qt
 
-from denis import BLACK, WHITE, Pawn, King, Rook, Knight, Bishop, Queen
+from figures import BLACK, WHITE, Pawn, King, Rook, Knight, Bishop, Queen
 from ch_board import Ui_MainWindow
-from denis2 import Choise_color, End_of_game, Statistic_rend, Choise_figure
+from graphics import Choise_color, End_of_game, Statistic_rend, Choise_figure
 
 
 class Chess(QMainWindow, Ui_MainWindow):
@@ -21,12 +21,14 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.action_3.triggered.connect(self.statistic_rend)
 
         self.rc = ()
+        self.rc_clone = ()
         self.color = 1
         self.field = []
         self.choise_fig = None
         self.meta_fig = None
         self.ch = 0
         self.count_steps = 0
+        self.bckground_cells = []
         self.attack_field = None
         self.player_color = 0
         self.nickname = None
@@ -71,7 +73,6 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.nickname = color[6:]
         color = color[:6]
         if color == 'WHITE':
-            pass
             self.player_color = WHITE
         self.player_color = BLACK
 
@@ -97,7 +98,6 @@ class Chess(QMainWindow, Ui_MainWindow):
                 min_steps = self.count_steps
             count_games = result[0] + 1
             count_wins = result[1] + win
-            print(count_games, count_wins, max_steps, min_steps, self.nickname)
             sqlite_update_query = f"""UPDATE statistic
                 SET 'колличество игр' = {count_games},
                  'колличество побед' = {count_wins},
@@ -186,12 +186,22 @@ class Chess(QMainWindow, Ui_MainWindow):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
+            if not self.rc and self.rc_clone:
+                if self.bckground_cells[1] == 'background-color: darkCyan':
+                    self.bckground_cells[1] = self.bckground_cells[0]
+                eval(f"self.cell{self.rc_clone[0]}{self.rc_clone[1]}.setStyleSheet('{self.bckground_cells[0]}')")
+                eval(f"self.cell{self.rc_clone[2]}{self.rc_clone[3]}.setStyleSheet('{self.bckground_cells[1]}')")
+                self.bckground_cells = []
             x = (event.x() - 77) // 65
             y = 7 - ((event.y() - 104) // 66)
             if self.correct_coords(x, y):
                 self.rc += (y, x)
+            crds = str(y) + str(x)
+            eval('self.bckground_cells.append(self.cell' + crds + '.styleSheet())')
+            eval("self.cell" + crds + ".setStyleSheet('background-color: darkCyan')")
         if len(self.rc) == 4:
             self.game()
+            self.rc_clone = self.rc
             self.rc = ()
 
     def exit(self):
@@ -244,10 +254,10 @@ class Chess(QMainWindow, Ui_MainWindow):
             return False
         if piece.char() == "P" and ((piece.get_color() == WHITE and row1 == 7) or
                                     (piece.get_color() == BLACK and row1 == 0)):
-            piece = Choise_figure()
-            piece.show()
-            piece = piece.exec()
-            print(piece)
+            dialog = Choise_figure()
+            dialog.show()
+            if dialog.exec_():
+                piece = self.meta_fig(dialog.figure)
         self.field[row][col] = None
         save = self.field[row1][col1]
         self.field[row1][col1] = piece
@@ -265,8 +275,16 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.color = self.opponent(self.color)
         return True
 
-    def ret_signal(self, signal):
-        self.meta_fig = signal
+    def meta_fig(self, txt):
+        if txt == 'Конь':
+            piece = Knight(self.color)
+        elif txt == 'Слон':
+            piece = Bishop(self.color)
+        elif txt == 'Ладья':
+            piece = Rook(self.color)
+        else:
+            piece = Queen(self.color)
+        return piece
 
     def castling(self, kr, kc, kr1, kc1, rr, rc, rr1, rc1):
         self.field[kr][kc] = None
@@ -305,6 +323,5 @@ def except_hook(cls, exception, traceback):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     game = Chess()
-    game.show()
     sys.excepthook = except_hook
     sys.exit(app.exec())

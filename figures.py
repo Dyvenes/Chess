@@ -1,13 +1,12 @@
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QObject
 
 WHITE = 1
 BLACK = 0
 
-from denis2 import Choise_figure
 
-
-class Figure:
+class Figure(QObject):
     def __init__(self, color):
+        super().__init__()
         self.color = color
 
     def get_color(self):
@@ -49,17 +48,17 @@ class Queen(Figure):
             c = col
             for r in range(row + step, row1, step):
                 c += step2
-                if not (board[r][c] is None):
+                if not (board.field[r][c] is None):
                     return False
         else:
             step = 1 if (row1 >= row) else -1
             for r in range(row + step, row1, step):
-                if not (board[r][col] is None):
+                if not (board.field[r][col] is None):
                     return False
 
             step = 1 if (col1 >= col) else -1
             for c in range(col + step, col1, step):
-                if not (board[row][c] is None):
+                if not (board.field[row][c] is None):
                     return False
         return True
 
@@ -125,8 +124,6 @@ class Queen(Figure):
 
 
 class Pawn(Figure):
-    choise_fig = pyqtSignal(Figure)
-
     def __init__(self, color):
         super().__init__(color)
 
@@ -149,24 +146,7 @@ class Pawn(Figure):
 
         if row == start_row and row + 2 * direction == row1:
             return True
-
         return False
-
-    def meta_signal(self, chess):
-        chess.choise_fig = Choise_figure()
-        chess.choise_fig.show()
-        chess.choise_fig.figure.connect(self.metamorphose)
-
-    def metamorphose(self, choise_fig):
-        print("metamorphose")
-        if choise_fig == 'Bishop':
-            self.choise_fig.emit(Bishop(self.color))
-        elif choise_fig == 'Knight':
-            self.choise_fig.emit(Knight(self.color))
-        elif choise_fig == 'Rook':
-            self.choise_fig.emit(Rook(self.color))
-        else:
-            self.choise_fig.emit(Queen(self.color))
 
     def can_attack(self, board, row, col, row1, col1):
         if col == col1 or row == row1:
