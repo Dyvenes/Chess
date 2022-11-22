@@ -1,11 +1,14 @@
+from PyQt5.QtCore import pyqtSignal, QObject
+
 WHITE = 1
 BLACK = 0
 
 from denis2 import Choise_figure
 
 
-class Figure:
+class Figure(QObject):
     def __init__(self, color):
+        super(Figure, self).__init__()
         self.color = color
 
     def get_color(self):
@@ -24,7 +27,7 @@ class Figure:
     def can_attack(self, board, row, col, row1, col1):
         return self.can_move(board, row, col, row1, col1)
 
-    def paint_field(self, board, attack_field, def_field,  r, c):
+    def paint_field(self, board, attack_field, def_field, r, c):
         pass
 
     def get_type(self):
@@ -83,7 +86,6 @@ class Queen(Figure):
                         if board[r][c].get_color() != self.color:
                             attack_field[r][c] = coef
                             if board[r][c].char() == "K":
-                                print("увидел")
                                 attack_field[r][c] = 1
                         break
                     attack_field[r][c] = coef
@@ -97,10 +99,10 @@ class Queen(Figure):
                 elif def_field and def_field[r][c] != 0:
                     coef = 0
                 elif not (board[r][c] is None):
+                    print(board[r][c], self.color)
                     if board[r][c].get_color() != self.color:
                         attack_field[r][c] = coef
                         if board[r][c].char() == "K":
-                            print("увидел")
                             attack_field[r][c] = 1
                     break
                 attack_field[r][c] = coef
@@ -117,18 +119,17 @@ class Queen(Figure):
                     if board[r][c].get_color() != self.color:
                         attack_field[r][c] = coef
                         if board[r][c].char() == "K":
-                            print("увидел")
                             attack_field[r][c] = 1
                     break
                 attack_field[r][c] = coef
-
         return attack_field
 
 
 class Pawn(Figure):
+    choise_fig = pyqtSignal(Figure)
+
     def __init__(self, color):
         super().__init__(color)
-        self.meta_fig = None
 
     def char(self):
         return 'P'
@@ -152,26 +153,21 @@ class Pawn(Figure):
 
         return False
 
-    def meta_signal(self):
-        print("meta_signal")
-        self.choise_fig = Choise_figure()
-        print("не упал")
-        self.choise_fig.show()
-        print("не упал")
-        self.choise_fig.figure.connect(self.metamorphose)
-        print("не упал")
-        return self.meta_fig
+    def meta_signal(self, chess):
+        chess.choise_fig = Choise_figure()
+        chess.choise_fig.show()
+        chess.choise_fig.figure.connect(self.metamorphose)
 
     def metamorphose(self, choise_fig):
         print("metamorphose")
         if choise_fig == 'Bishop':
-            self.meta_fig = Bishop(self.color)
+            self.choise_fig.emit(Bishop(self.color))
         elif choise_fig == 'Knight':
-            self.meta_fig = Knight(self.color)
+            self.choise_fig.emit(Knight(self.color))
         elif choise_fig == 'Rook':
-            self.meta_fig = Rook(self.color)
+            self.choise_fig.emit(Rook(self.color))
         else:
-            self.meta_fig = Queen(self.color)
+            self.choise_fig.emit(Queen(self.color))
 
     def can_attack(self, board, row, col, row1, col1):
         if col == col1 or row == row1:
@@ -189,17 +185,17 @@ class Pawn(Figure):
 
     def paint_field(self, board, attack_field, def_field, r, c):
         if self.color == BLACK:
-            if c == 0:
+            if r != 0 and c == 0:
                 attack_field[r - 1][c + 1] = 1
-            elif c == 7:
+            elif r != 0 and c == 7:
                 attack_field[r - 1][c - 1] = 1
             elif r != 0:
                 attack_field[r - 1][c - 1] = 1
                 attack_field[r - 1][c + 1] = 1
         else:
-            if c == 0:
+            if r != 7 and c == 0:
                 attack_field[r + 1][c + 1] = 1
-            elif c == 7:
+            elif r != 7 and c == 7:
                 attack_field[r + 1][c - 1] = 1
             elif r != 7:
                 attack_field[r + 1][c - 1] = 1
@@ -384,9 +380,6 @@ class King(Figure):
         c = self.coords[1]
         if ch == 1 and attack_field[r][c] != 0:
             return True
-        for i in attack_field:
-            print(i)
-        print("------------------------------------------------")
         if attack_field[r][c] != 0:
             for i in range(-1, 2):
                 for j in range(-1, 2):
