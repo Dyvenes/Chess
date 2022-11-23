@@ -24,10 +24,10 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.rc_clone = ()
         self.color = 1
         self.field = []
-        self.choise_fig = None
-        self.meta_fig = None
         self.ch = 0
         self.count_steps = 0
+        self.killedWhite = 0
+        self.killedBlack = 0
         self.bckground_cells = []
         self.attack_field = None
         self.player_color = 0
@@ -56,7 +56,11 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.color = 1
         self.count_steps = 0
 
-        self.statusbar.showMessage('Ход белых')
+        for i in range(1, 16):
+            for j in (0, 1):
+                eval(f'self.killed{j}{i}.clear()')
+
+        self.label_message.setText('Ход белых')
 
         self.clear_atfld()
         self.attack_field_func()
@@ -70,7 +74,7 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.stat_rend.show()
 
     def set_color(self, color):
-        self.nickname = color[6:]
+        self.nickname = color[5:]
         color = color[:6]
         if color == 'WHITE':
             self.player_color = WHITE
@@ -133,6 +137,7 @@ class Chess(QMainWindow, Ui_MainWindow):
             if self.move_piece(row, col, row1, col1):
                 self.rendering()
                 self.count_steps += 1
+                self.color = self.opponent(self.color)
                 self.clear_atfld()
                 self.attack_field_func()
                 dan = self.danger()
@@ -149,29 +154,49 @@ class Chess(QMainWindow, Ui_MainWindow):
                     self.win.choise.connect(self.end_of_game)
                     return
             else:
-                self.statusBar().showMessage('Координаты некорректны! Попробуйте другой ход!')
+                if 'НЕВОЗМОЖЕН' in self.label_message.text():
+                    self.label_message.setText(self.label_message.text() + ' || ХОД НЕВОЗМОЖЕН ||')
                 return
         else:
             if row == 0 and col == 4 and self.field[row][
                 col] and self.current_player_color() == WHITE and self.get_piece(0, 4).char() == 'K' and \
                     self.get_piece(0, 4).poss_cast:
                 if row1 == 0 and col1 == 2 and self.field[0][0] and self.get_piece(0, 0).char() == 'R' and \
-                        self.get_piece(0, 0).poss_cast:
+                        self.get_piece(0, 0).poss_cast and not self.field[0][3] and not self.field[0][1] and \
+                        not self.field[0][2] and not self.attack_field[0][2] and not self.attack_field[0][3] and \
+                        not self.attack_field[0][4]:
                     self.castling(0, 4, 0, 2, 0, 0, 0, 3)
+                    self.color = self.opponent(self.color)
                 elif row1 == 0 and col1 == 6 and self.field[0][7] and self.get_piece(0, 7).char() == 'R' and \
-                        self.get_piece(0, 7).poss_cast:
+                        self.get_piece(0, 7).poss_cast and not self.field[0][5] and not self.field[0][6] and \
+                        not self.attack_field[0][5] and not self.attack_field[0][6] and \
+                        not self.attack_field[0][4]:
                     self.castling(0, 4, 0, 6, 0, 7, 0, 5)
+                    self.color = self.opponent(self.color)
             elif row == 7 and col == 4 and self.field[row][
                 col] and self.current_player_color() == BLACK and self.get_piece(7, 4).char() == 'K' and \
                     self.get_piece(7, 4).poss_cast:
                 if row1 == 7 and col1 == 2 and self.field[7][0] and self.get_piece(7, 0).char() == 'R' and \
-                        self.get_piece(7, 0).poss_cast:
+                        self.get_piece(7, 0).poss_cast and not self.field[7][3] and not self.field[7][1] and \
+                        not self.field[7][2] and not self.attack_field[7][2] and not self.attack_field[7][3] and \
+                        not self.attack_field[7][4]:
                     self.castling(7, 4, 7, 2, 7, 0, 7, 3)
-                elif row1 == 7 and col1 == 6 and self.field[7][7] and self.get_piece(7, 7) == Rook and \
-                        self.get_piece(7, 7).poss_cast:
+                    self.color = self.opponent(self.color)
+                elif row1 == 7 and col1 == 6 and self.field[7][7] and self.get_piece(7, 7).char() == 'R' and \
+                         self.get_piece(7, 7).poss_cast and not self.field[7][5] and not self.field[7][6] and \
+                        not self.attack_field[7][5] and not self.attack_field[7][6] and \
+                        not self.attack_field[7][4]:
                     self.castling(7, 4, 7, 6, 7, 7, 7, 5)
+                    self.color = self.opponent(self.color)
+            else:
+                if 'НЕВОЗМОЖЕН' not in self.label_message.text():
+                    self.label_message.setText(self.label_message.text() + ' || ХОД НЕВОЗМОЖЕН ||')
+                return
             self.rendering()
-            self.color = self.opponent(self.color)
+        if self.color == WHITE:
+            self.label_message.setText('Ход белых')
+        else:
+            self.label_message.setText('Ход черных')
         return
         # отрисовка поля в окне игры
 
@@ -192,7 +217,7 @@ class Chess(QMainWindow, Ui_MainWindow):
                 eval(f"self.cell{self.rc_clone[0]}{self.rc_clone[1]}.setStyleSheet('{self.bckground_cells[0]}')")
                 eval(f"self.cell{self.rc_clone[2]}{self.rc_clone[3]}.setStyleSheet('{self.bckground_cells[1]}')")
                 self.bckground_cells = []
-            x = (event.x() - 77) // 65
+            x = (event.x() - 212) // 65
             y = 7 - ((event.y() - 104) // 66)
             if self.correct_coords(x, y):
                 self.rc += (y, x)
@@ -250,6 +275,12 @@ class Chess(QMainWindow, Ui_MainWindow):
         elif self.field[row1][col1].get_color() == self.opponent(piece.get_color()):
             if not piece.can_attack(self, row, col, row1, col1):
                 return False
+            if self.color:
+                self.killedWhite += 1
+                eval(f'self.killed0{self.killedWhite}.setPixmap(self.cell{row1}{col1}.pixmap())')
+            else:
+                self.killedBlack += 1
+                eval(f'self.killed1{self.killedBlack}.setPixmap(self.cell{row1}{col1}.pixmap())')
         else:
             return False
         if piece.char() == "P" and ((piece.get_color() == WHITE and row1 == 7) or
