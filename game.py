@@ -126,10 +126,6 @@ class Chess(QMainWindow, Ui_MainWindow):
         self.new_game()
 
     def game(self):
-        if not self.current_player_color() == WHITE:
-            self.statusBar().showMessage('Ход белых')
-        else:
-            self.statusBar().showMessage('Ход черных')
         coordinats = (row, col, row1, col1) = self.rc
         if not self.correct_coords(row, col) or not self.correct_coords(row1, col1):
             return
@@ -154,7 +150,7 @@ class Chess(QMainWindow, Ui_MainWindow):
                     self.win.choise.connect(self.end_of_game)
                     return
             else:
-                if 'НЕВОЗМОЖЕН' in self.label_message.text():
+                if 'НЕВОЗМОЖЕН' not in self.label_message.text():
                     self.label_message.setText(self.label_message.text() + ' || ХОД НЕВОЗМОЖЕН ||')
                 return
         else:
@@ -303,7 +299,6 @@ class Chess(QMainWindow, Ui_MainWindow):
             self.field[row][col] = piece
             self.field[row1][col1] = save
             return False
-        self.color = self.opponent(self.color)
         return True
 
     def meta_fig(self, txt):
