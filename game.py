@@ -131,12 +131,12 @@ class Chess(QMainWindow, Ui_MainWindow):
             return
         if not self.is_castling(coordinats):
             if self.move_piece(row, col, row1, col1):
+                dan = self.danger()
                 self.rendering()
                 self.count_steps += 1
                 self.color = self.opponent(self.color)
                 self.clear_atfld()
                 self.attack_field_func()
-                dan = self.danger()
                 print("dan = ", dan)
                 if dan == "мат":
                     self.statistic()
@@ -179,7 +179,7 @@ class Chess(QMainWindow, Ui_MainWindow):
                     self.castling(7, 4, 7, 2, 7, 0, 7, 3)
                     self.color = self.opponent(self.color)
                 elif row1 == 7 and col1 == 6 and self.field[7][7] and self.get_piece(7, 7).char() == 'R' and \
-                         self.get_piece(7, 7).poss_cast and not self.field[7][5] and not self.field[7][6] and \
+                        self.get_piece(7, 7).poss_cast and not self.field[7][5] and not self.field[7][6] and \
                         not self.attack_field[7][5] and not self.attack_field[7][6] and \
                         not self.attack_field[7][4]:
                     self.castling(7, 4, 7, 6, 7, 7, 7, 5)
@@ -206,8 +206,9 @@ class Chess(QMainWindow, Ui_MainWindow):
                     eval(f'self.cell{r}{c}.clear()')
 
     def mousePressEvent(self, event):
+        crds = ()
         if event.button() == Qt.LeftButton:
-            if not self.rc and self.rc_clone:
+            if not self.rc and self.rc_clone and self.bckground_cells:
                 if self.bckground_cells[1] == 'background-color: darkCyan':
                     self.bckground_cells[1] = self.bckground_cells[0]
                 eval(f"self.cell{self.rc_clone[0]}{self.rc_clone[1]}.setStyleSheet('{self.bckground_cells[0]}')")
@@ -217,9 +218,10 @@ class Chess(QMainWindow, Ui_MainWindow):
             y = 7 - ((event.y() - 104) // 66)
             if self.correct_coords(x, y):
                 self.rc += (y, x)
-            crds = str(y) + str(x)
-            eval('self.bckground_cells.append(self.cell' + crds + '.styleSheet())')
-            eval("self.cell" + crds + ".setStyleSheet('background-color: darkCyan')")
+                crds = str(y) + str(x)
+            if crds:
+                eval('self.bckground_cells.append(self.cell' + crds + '.styleSheet())')
+                eval("self.cell" + crds + ".setStyleSheet('background-color: darkCyan')")
         if len(self.rc) == 4:
             self.game()
             self.rc_clone = self.rc
@@ -339,7 +341,7 @@ class Chess(QMainWindow, Ui_MainWindow):
                 if not j:
                     continue
                 if j.get_type() == "King" and j.get_color() == self.color:
-                    return j.danger(self.field, self.attack_field, self.ch)
+                    return j.danger(self, self.field, self.attack_field, self.ch)
 
 
 def except_hook(cls, exception, traceback):
